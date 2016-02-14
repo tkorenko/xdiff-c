@@ -236,7 +236,7 @@ void XHash::initialize(unsigned long long key)
 	makeKeys(key);
 }
 
-unsigned long long XHash::hash(string text)
+unsigned long long XHash::hash(std::string text)
 {
 	int	len = text.length();
 	unsigned long long	value = 0;

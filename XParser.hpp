@@ -40,25 +40,24 @@
 
 #include <string>
 
-#include <sax2/Attributes.hpp>
-#include <sax2/DefaultHandler.hpp>
-#include <sax2/SAX2XMLReader.hpp>
-#include <sax2/XMLReaderFactory.hpp>
-#include <util/PlatformUtils.hpp>
-#include <util/XMLString.hpp>
+#include <xercesc/sax2/Attributes.hpp>
+#include <xercesc/sax2/DefaultHandler.hpp>
+#include <xercesc/sax2/SAX2XMLReader.hpp>
+#include <xercesc/sax2/XMLReaderFactory.hpp>
+#include <xercesc/util/PlatformUtils.hpp>
+#include <xercesc/util/XMLString.hpp>
 
 #include "XTree.hpp"
 #include "XHash.hpp"
 
 #define _STACK_SIZE 64
 
-
 /**
   * XParser parses an input XML document and constructs an XTree.
   * Note: this parser may generate incorrect result on characters whose
   * ASCII value is beyond 127.
   */
-class XParser : public DefaultHandler
+class XParser : public xercesc::DefaultHandler
 {
 public:
 
@@ -75,9 +74,10 @@ public:
 	// Document handler methods
 
 	void startElement(const XMLCh* const uri, const XMLCh* const local,
-			  const XMLCh* const raw, const Attributes& attrs);
+			  const XMLCh* const raw,
+			  const xercesc::Attributes& attrs);
 
-	void characters(const XMLCh* const ch, const unsigned int length);
+	void characters(const XMLCh* const ch, const XMLSize_t length);
 
 	void endElement(const XMLCh* const uri, const XMLCh* const local,
 			const XMLCh* const raw);
@@ -98,22 +98,22 @@ private:
 	static bool		_setNameSpacePrefixes;
 	static const char*	_trimReject;
 
-	SAX2XMLReader	*_parser;
+	xercesc::SAX2XMLReader	*_parser;
 	XTree		*_xtree;
 	int		_idStack[_STACK_SIZE];
         int		_lsidStack[_STACK_SIZE]; // id and left sibling
 	unsigned long long	_valueStack[_STACK_SIZE];
 	int		_stackTop, _currentNodeID;
 	bool		_readElement;
-	string		_elementBuffer;
+	std::string	_elementBuffer;
 
 	/**
 	  * Trim a string.
 	  * @param	input	input string
 	  * @return	a trimmed string
 	  */
-	string _trim(const char* input);
-	string _trim(string input);
+	std::string _trim(const char* input);
+	std::string _trim(std::string input);
 };
 
 #endif

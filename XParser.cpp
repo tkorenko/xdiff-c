@@ -52,11 +52,11 @@ const char*	XParser::_trimReject = " \t\n";
 
 XParser::XParser()
 {
-	_parser = XMLReaderFactory::createXMLReader();
-	XMLCh*	validation = XMLString::transcode(_feature_Validation);
+	_parser = xercesc::XMLReaderFactory::createXMLReader();
+	XMLCh*	validation = xercesc::XMLString::transcode(_feature_Validation);
 	_parser->setFeature((const XMLCh*)validation, _setValidation);
 	delete validation;
-	XMLCh*	namespaces = XMLString::transcode(_feature_NameSpaces);
+	XMLCh*	namespaces = xercesc::XMLString::transcode(_feature_NameSpaces);
 	_parser->setFeature((const XMLCh*)namespaces, _setNameSpaces);
 	delete namespaces;
 /*
@@ -67,7 +67,7 @@ XParser::XParser()
 	_parser->setFeature((const XMLCh*)schemafullsupport, _setSchemaFullSupport);
 	delete schemafullsupport;
 */
-	XMLCh*	namespaceprefixes = XMLString::transcode(_feature_NameSpacePrefixes);
+	XMLCh*	namespaceprefixes = xercesc::XMLString::transcode(_feature_NameSpacePrefixes);
 	_parser->setFeature((const XMLCh*)namespaceprefixes, _setNameSpacePrefixes);
 	delete namespaceprefixes;
 
@@ -84,7 +84,7 @@ XParser::XParser()
 	_stackTop = 0;
 	_currentNodeID = XTree::NULL_NODE;
 	_xtree = new XTree();
-	_elementBuffer = string("");
+	_elementBuffer = std::string("");
 }
 
 XParser::~XParser()
@@ -101,10 +101,10 @@ XTree* XParser::parse(const char* uri)
 	{
 		_parser->parse(uri);
 	}
-	catch (const XMLException& e)
+	catch (const xercesc::XMLException& e)
 	{
-		cerr << "File not found:\t" << uri << "\nException message:\n"
-			<< e.getMessage() << endl;
+		std::cerr << "File not found:\t" << uri << "\nException message:\n"
+			<< e.getMessage() << std::endl;
 		return NULL;
 	}
 
@@ -112,12 +112,13 @@ XTree* XParser::parse(const char* uri)
 }
 
 void XParser::startElement(const XMLCh* const uri, const XMLCh* const local,
-		  	   const XMLCh* const raw, const Attributes& attrs)
+		  	   const XMLCh* const raw,
+			   const xercesc::Attributes& attrs)
 {
 	// if text is mixed with elements.
 	if (_elementBuffer.length() > 0)
 	{
-		string	text = _trim(_elementBuffer);
+		std::string	text = _trim(_elementBuffer);
 		if (text.length() > 0)
 		{
 			unsigned long long	value = XHash::hash(text);
@@ -130,7 +131,7 @@ void XParser::startElement(const XMLCh* const uri, const XMLCh* const local,
 		}
 	}
 
-	string local_s(XMLString::transcode(local));
+	std::string local_s(xercesc::XMLString::transcode(local));
 
 //cout << "Add element " << _idStack[_stackTop] << "\t" << _lsidStack[_stackTop] << "\t" << local_s << endl;
 	int	eid = _xtree->addElement(_idStack[_stackTop],
@@ -150,15 +151,15 @@ void XParser::startElement(const XMLCh* const uri, const XMLCh* const local,
 	{
 		for (unsigned int i = 0; i < attrs.getLength(); i++)
 		{
-			string	name(XMLString::transcode(attrs.getQName(i)));
+			std::string	name(xercesc::XMLString::transcode(attrs.getQName(i)));
 			unsigned long long	namehash = XHash::hash(name);
 			
 			unsigned long long	attrhash = namehash * namehash;
-			string	value = "";
-			char	*valueP = XMLString::transcode(attrs.getValue(i));
+			std::string	value = "";
+			char	*valueP = xercesc::XMLString::transcode(attrs.getValue(i));
 			if (valueP != NULL)
 			{
-				value = string(valueP);
+				value = std::string(valueP);
 				unsigned long long valuehash = XHash::hash(value);
 				attrhash += valuehash * valuehash;
 			}
@@ -171,13 +172,13 @@ void XParser::startElement(const XMLCh* const uri, const XMLCh* const local,
 	}
 	
 	_readElement = true;
-	_elementBuffer = string("");
+	_elementBuffer = std::string("");
 
 }
 
-void XParser::characters(const XMLCh* const ch, const unsigned int length)
+void XParser::characters(const XMLCh* const ch, const XMLSize_t length)
 {
-	const char*	str = XMLString::transcode(ch);
+	const char*	str = xercesc::XMLString::transcode(ch);
 	_elementBuffer.append(str);
 	delete[] str;
 }
@@ -210,7 +211,7 @@ void XParser::endElement(const XMLCh* const uri, const XMLCh* const local,
 	{
 		if (_elementBuffer.length() > 0)
 		{
-			string	text = _trim(_elementBuffer);
+			std::string	text = _trim(_elementBuffer);
 			if (text.length() > 0)
 			{
 				unsigned long long	value = XHash::hash(text);
@@ -223,7 +224,7 @@ void XParser::endElement(const XMLCh* const uri, const XMLCh* const local,
 		}
 	}
 
-	_elementBuffer = string("");
+	_elementBuffer = std::string("");
 	_xtree->addHashValue(_idStack[_stackTop], _valueStack[_stackTop]);
 	_valueStack[_stackTop-1] += _valueStack[_stackTop] *
 				    _valueStack[_stackTop];
@@ -237,39 +238,39 @@ void XParser::endElement(const XMLCh* const uri, const XMLCh* const local,
 void XParser::startCDATA()
 {
 	int	textid = _currentNodeID + 1;
-	string	text = _elementBuffer;
+	std::string	text = _elementBuffer;
 	_xtree->addCDATA(textid, text.length());
 }
 
 void XParser::endCDATA()
 {
 	int	textid = _currentNodeID + 1;
-	string	text = _elementBuffer;
+	std::string	text = _elementBuffer;
 	_xtree->addCDATA(textid, text.length());
 }
 
-string XParser::_trim(const char* input)
+std::string XParser::_trim(const char* input)
 {
-	string	base(input);
+	std::string	base(input);
 	if (base.length() == 0)
-		return string("");
+		return std::string("");
 
 	int	start = base.find_first_not_of(_trimReject);
 	if (start < 0)
-		return string("");
+		return std::string("");
 
 	int	end = base.find_last_not_of(_trimReject);
 	return base.substr(start, end - start + 1);
 }
 
-string XParser::_trim(string input)
+std::string XParser::_trim(std::string input)
 {
 	if (input.length() == 0)
-		return string("");
+		return std::string("");
 
 	int	start = input.find_first_not_of(_trimReject);
 	if (start < 0)
-		return string("");
+		return std::string("");
 
 	int	end = input.find_last_not_of(_trimReject);
 	return input.substr(start, end - start + 1);

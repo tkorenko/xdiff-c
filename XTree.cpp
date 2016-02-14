@@ -107,9 +107,9 @@ void XTree::_initialize()
 	_matching	= new int*[_topCap];
 	_isAttribute	= new bool*[_topCap];
 	_hashValue	= new unsigned long long*[_topCap];
-	_value		= new string*[_topCap];
+	_value		= new std::string*[_topCap];
 
-	_value[0]	= new string[_botCap];
+	_value[0]	= new std::string[_botCap];
 	_elementIndex	= -1;
 	_tagIndex	= -1;
 	_valueCount	= _botCap - 1;
@@ -136,7 +136,7 @@ void XTree::_expand(int topid)
 	}
 }
 
-int XTree::addElement(int pid, int lsid, string tagName)
+int XTree::addElement(int pid, int lsid, std::string tagName)
 {
 	_elementIndex++;
 
@@ -146,7 +146,7 @@ int XTree::addElement(int pid, int lsid, string tagName)
 		_expand(topid);
 
 	// Check if we've got the element name
-	hash_map <string, int, HashString>::const_iterator
+	hash_map <std::string, int, HashString>::const_iterator
 		hit = _tagNames.find(tagName);
 	if (hit != _tagNames.end())
 	{
@@ -178,7 +178,8 @@ int XTree::addElement(int pid, int lsid, string tagName)
 	return _elementIndex;
 }
 
-int XTree::addText(int eid, int lsid, string text, unsigned long long value)
+int XTree::addText(int eid, int lsid, std::string text,
+		   unsigned long long value)
 {
 	_elementIndex++;
 
@@ -201,7 +202,7 @@ int XTree::addText(int eid, int lsid, string text, unsigned long long value)
 	int	vtopid = _valueCount / _botCap;
 	int	vbotid = _valueCount % _botCap;
 	if (vbotid == 0)
-		_value[vtopid] = new string[_botCap];
+		_value[vtopid] = new std::string[_botCap];
 
 	_value[vtopid][vbotid] = text;
 	_valueIndex[topid][botid] = _valueCount;
@@ -209,7 +210,8 @@ int XTree::addText(int eid, int lsid, string text, unsigned long long value)
 	return _elementIndex;
 }
 
-int XTree::addAttribute(int eid, int lsid, string name, string value,
+int XTree::addAttribute(int eid, int lsid, std::string name,
+			std::string value,
 			unsigned long long valuehash,
 			unsigned long long attrhash)
 {
@@ -251,7 +253,7 @@ void XTree::addCDATA(int eid, size_t position)
 	}
 }
 
-void XTree::addMatching(int eid, int matchType, int matchNode = -1)
+void XTree::addMatching(int eid, int matchType, int matchNode)
 {
 	if (matchType == NO_MATCH)
 		_matching[eid/_botCap][eid%_botCap] = NO_MATCH;
@@ -319,7 +321,7 @@ int XTree::getNextAttribute(int aid)
 		return NULL_NODE;
 }
 
-string XTree::getAttributeValue(int aid)
+std::string XTree::getAttributeValue(int aid)
 {
 	int	cid = _firstChild[aid/_botCap][aid%_botCap];
 	int	index = _valueIndex[cid/_botCap][cid%_botCap];
@@ -375,18 +377,18 @@ int XTree::getValueIndex(int eid)
 	return _valueIndex[eid/_botCap][eid%_botCap];
 }
 
-string XTree::getValue(int index) 
+std::string XTree::getValue(int index) 
 {
 	return _value[index/_botCap][index%_botCap];
 }
 
-string XTree::getTag(int eid)
+std::string XTree::getTag(int eid)
 {
 	int	index = _valueIndex[eid/_botCap][eid%_botCap];
 	return	_value[0][index];
 }
 
-string XTree::getText(int eid)
+std::string XTree::getText(int eid)
 {
 	int	index = _valueIndex[eid/_botCap][eid%_botCap];
 	return _value[index/_botCap][index%_botCap];
@@ -422,7 +424,7 @@ int XTree::getNodeCount()
 
 void XTree::dump()
 {
-	cout << "eid\tfirstC\tnextS\tattr?\tcCount\thash\tmatch\tvalue\n";
+	std::cout << "eid\tfirstC\tnextS\tattr?\tcCount\thash\tmatch\tvalue\n";
 	for (int i = _ROOT; i <= _elementIndex; i++)
 	{
 		int	topid = i / _botCap;
@@ -430,24 +432,24 @@ void XTree::dump()
 		int	vid = _valueIndex[topid][botid];
 		int	vtopid = vid / _botCap;
 		int	vbotid = vid % _botCap;
-		cout << i << "\t" << _firstChild[topid][botid] << "\t"
+		std::cout << i << "\t" << _firstChild[topid][botid] << "\t"
 			<< _nextSibling[topid][botid] << "\t"
 			<< _isAttribute[topid][botid] << "\t"
 			<< _childrenCount[topid][botid] << "\t"
 			<< _hashValue[topid][botid] << "\t"
 			<< _matching[topid][botid] << "\t"
-			<< _value[vtopid][vbotid] << endl;
+			<< _value[vtopid][vbotid] << std::endl;
 	}
 }
 
 void XTree::dumpHash()
 {
-	cout << "hash table:" << _tagNames.size() << endl;
-	hash_map<string, int, HashString>::const_iterator
+	std::cout << "hash table:" << _tagNames.size() << std::endl;
+	hash_map<std::string, int, HashString>::const_iterator
 		hit;// = _tagNames.begin();
 	for(hit=_tagNames.begin(); hit != _tagNames.end(); hit++)
 	{
-		cout << hit->first << "\t" << hit->second << endl;
+		std::cout << hit->first << "\t" << hit->second << std::endl;
 		//hit++;
 	}
 }

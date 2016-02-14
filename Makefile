@@ -44,15 +44,15 @@
 ##############################################################################
 
 # Replace it with your own $XERCESROOT
-XERCESROOT = /p/niagara/s/xerces-c-1.4.0
+XERCESROOT = /usr/local
 
 CC = g++
 CFLAGS = -DDEBUG -DLINUX -D_REENTRANT -g -fpic -Wall
 LFLAGS = -DLINUX -fpic
 
-INCLUDES = -I. -I$(XERCESROOT)/include
-LIBS = -L$(XERCESROOT)/lib -static
-LINKS = -lxerces-c1_4 -lc
+INCLUDES = -I${XERCESROOT}/include
+LIBS = -L${XERCESROOT}/lib
+LINKS = -lxerces-c -lc
 
 SOURCES =	XTree.cpp	\
 		XHash.cpp	\
@@ -69,7 +69,7 @@ OBJECTS = $(SOURCES:.cpp=.o)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<
 
 xdiff:	$(OBJECTS)
-	$(CC) $(LFLAGS) $(LIBS) -o xdiff $(OBJECTS) $(LINKS) 
+	$(CC) $(LFLAGS) $(LIBS) -o ${.TARGET} $(OBJECTS) $(LINKS) 
 
 clean:
-	rm -rf *.o core
+	rm -rf *.o core xdiff

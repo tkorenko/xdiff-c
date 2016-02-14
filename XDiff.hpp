@@ -56,7 +56,7 @@
 class XDiff
 {
 public:
-	static const string	USAGE;
+	static const std::string USAGE;
 	static bool		_oFlag, _gFlag;
         static double		_NO_MATCH_THRESHOLD;
 	/**
@@ -77,7 +77,7 @@ private:
 	bool			*_attrMatch, *_textMatch1, *_textMatch2;
 	bool			_needNewLine;
 	unsigned long long	*_attrHash, *_textHash;
-	string			*_attrTag;
+	std::string		*_attrTag;
 	XTree			*_xtree1, *_xtree2;
 	XLut			*_xlut;
 
@@ -109,10 +109,10 @@ private:
 			 const struct timeval *time2);
 
 	void writeDiff(const char* input, const char* output);
-	void writeDeleteNode(ofstream &out, int node);
-	void writeInsertNode(ofstream &out, int node);
-	void writeMatchNode(ofstream &out, XTree *xtree, int node);
-	void writeDiffNode(ofstream &out, int node1, int node2);
-	string constructText(XTree *xtree, int eid);
+	void writeDeleteNode(std::ofstream &out, int node);
+	void writeInsertNode(std::ofstream &out, int node);
+	void writeMatchNode(std::ofstream &out, XTree *xtree, int node);
+	void writeDiffNode(std::ofstream &out, int node1, int node2);
+	std::string constructText(XTree *xtree, int eid);
 };
 #endif

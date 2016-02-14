@@ -40,13 +40,15 @@
 
 #include <iostream>
 #include <string>
-#include <hash_map>
+#include <ext/hash_map>
 #include <vector>
+
+using namespace __gnu_cxx;
 
 class HashString
 {
 public:
-	bool operator()(string const &str) const
+	bool operator()(std::string const &str) const
 	{
 		return hash<char const *>()(str.c_str());
 	}
@@ -77,10 +79,11 @@ public:
 	  * @param	tagName		element name
 	  * @return	the element id in the tree.
 	  */
-	int addElement(int pid, int lsid, string tagName);
+	int addElement(int pid, int lsid, std::string tagName);
 
 	// Add a text node.
-	int addText(int eid, int lsid, string text, unsigned long long value);
+	int addText(int eid, int lsid, std::string text,
+		    unsigned long long value);
 
 	/**
 	  * Add an attribute.
@@ -92,7 +95,8 @@ public:
 	  * @param	attrhash	hash value of the entire attribute
 	  * @return	the element id of the attribute
 	  */
-	int addAttribute(int eid, int lsid, string name, string value,
+	int addAttribute(int eid, int lsid, std::string name,
+			 std::string value,
 			 unsigned long long valuehash,
 			 unsigned long long attrhash);
 
@@ -131,7 +135,7 @@ public:
 
 	int getNextAttribute(int aid);
 
-	string getAttributeValue(int aid);
+	std::string getAttributeValue(int aid);
 
 	unsigned long long getHashValue(int eid);
 
@@ -140,7 +144,7 @@ public:
 	  * @param	eid		The text node id
 	  * @return	the position vector.
 	  */
-	vector<unsigned int> getCDATA(int eid);
+	vector<size_t> getCDATA(int eid);
 
 	int getChildrenCount(int eid);
 
@@ -148,13 +152,13 @@ public:
 
 	int getValueIndex(int eid);
 
-	string getTag(int eid);
+	std::string getTag(int eid);
 
 	// Get the value of a leaf node using the value index
-	string getValue(int index);
+	std::string getValue(int index);
 
 	// Get the value of a leaf node using the node id
-	string getText(int eid);
+	std::string getText(int eid);
 
 	// Check if a node is an element node.
 	bool isElement(int eid);
@@ -183,8 +187,8 @@ private:
 	int	**_valueIndex, **_matching;
 	bool	**_isAttribute;
 	unsigned long long	**_hashValue;
-	string	**_value;
-	hash_map<string, int, HashString>	_tagNames;
+	std::string **_value;
+	hash_map<std::string, int, HashString>	_tagNames;
 	hash_map<int, vector<size_t> >	_cdataTable;
 
 	void _initialize();

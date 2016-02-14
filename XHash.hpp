@@ -51,7 +51,7 @@ public:
 	static void initialize(unsigned long long key);
 	static void finish();
 	
-	static unsigned long long hash(string text);
+	static unsigned long long hash(std::string text);
 
 private:
 	static const unsigned long long	_initialKey;
